@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            height: 100vh; 
+            margin: 0;
+            display: flex;
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            background: rgb(0,0,1);
+            background: radial-gradient(circle, rgba(0,0,1,1) 0%, rgba(70,113,252,1) 100%);
+        }
+
+        .welcome-note {
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .file {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #file-upload {
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: color background-color 10s;
+        }
+
+        .btn:hover {
+            background-color:rgba(117, 116, 116, 0.536);
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="welcome-note">Welcome to OCR</h1>
+    <div class="main">
+        <form class="file" action="http://127.0.0.1:5000/process" method='POST' enctype="multipart/form-data">
+            <input id="file-upload" type="file" name="file" accept=".pdf, .jpg, .png">
+            <button class="btn" type="submit">Submit</button>
+        </form>
+    </div>
+    <script>
+        var message="{{message | safe}}";
+        if (message){
+            alert(message)
+        }
+
+
+    </script>
+</body>
+</html>
