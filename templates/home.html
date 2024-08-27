@@ -63,6 +63,11 @@
             <input id="file-upload" type="file" name="file" accept=".pdf, .jpg, .png">
             <button class="btn" type="submit">Submit</button>
         </form>
+
+        <form action="/chat" , method="post">
+            <input type="text", name="query">
+            <button class="btn" type="submit">submit</button>
+        </form>
     </div>
     <script>
         var message="{{message | safe}}";
