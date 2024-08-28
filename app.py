@@ -74,7 +74,7 @@ def process():
     
     
     if file.filename=='':
-        return render_template('home.html',message=None)
+        return jsonify({"message":"choose the file and then submit"})
     
     else:
         file=request.files['file']
@@ -92,17 +92,24 @@ def process():
         
         
         os.remove(file_path)
+        print(message)
         
         return jsonify({"message":message})
   
 @app.route('/chat',methods=['POST','GET'])
 def chat():
     if request.method=='POST':
-        query=request.form['query']
-        print(query)
-        text=gemini_api(query)
+        if request.form['query']!= '':
+            query=request.form['query']
+            print(query)
+            text=gemini_api(query)
+            print(text)
         
-    return render_template("home.html",message=text)
+            return jsonify({'reply':text})
+        
+        
+            
+        
         
         
         

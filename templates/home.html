@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCR</title>
+    <title>OCR & Chat</title>
     <style>
         body {
             font-family: 'Courier New', Courier, monospace;
@@ -24,7 +24,7 @@
             color: white;
         }
 
-        .file {
+        .container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -33,10 +33,19 @@
             border-radius: 10px;
             background-color: white;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 700px;
         }
 
-        #file-upload {
+        .form-group {
             margin-bottom: 20px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #file-upload, #chat-input {
+            width: 80%;
+            margin: 0 auto;
         }
 
         .btn {
@@ -54,28 +63,77 @@
             background-color:rgba(117, 116, 116, 0.536);
             color: black;
         }
+
+        .result-container {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: black;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <h1 class="welcome-note">Welcome to OCR</h1>
-    <div class="main">
-        <form class="file" action="http://127.0.0.1:5000/process" method='POST' enctype="multipart/form-data">
+    <h1 class="welcome-note">Welcome to OCR & Chat</h1>
+    <div class="container">
+        <form class="form-group" action="http://127.0.0.1:5000/process" method="POST" enctype="multipart/form-data" id="file-upload-form">
             <input id="file-upload" type="file" name="file" accept=".pdf, .jpg, .png">
-            <button class="btn" type="submit">Submit</button>
+            <button class="btn" type="submit">Submit File</button>
         </form>
+        <div id="result-file" class="result-container"></div>
 
-        <form action="/chat" , method="post">
-            <input type="text", name="query">
-            <button class="btn" type="submit">submit</button>
+        <form class="form-group" action="http://127.0.0.1:5000/chat" method="post" id="chat-form">
+            <input id="chat-input" type="text" name="query" placeholder="Enter your query">
+            <button class="btn" type="submit">Submit Query</button>
         </form>
+        <div id="result-chat" class="result-container"></div>
     </div>
     <script>
-        var message="{{message | safe}}";
-        if (message){
-            alert(message)
-        }
+        document.getElementById('file-upload-form').onsubmit = async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('result-file').innerText = result.message; // Display only the message
+                } else {
+                    document.getElementById('result-file').innerText = 'Error: ' + response.statusText;
+                }
+            } catch (error) {
+                document.getElementById('result-file').innerText = 'Error: ' + error.message;
+            }
+        };
 
-
+        document.getElementById('chat-form').onsubmit = async function(event) {
+            event.preventDefault();
+            const queryInput = document.getElementById('chat-input');
+            const query = queryInput.value.trim();
+    
+            // Check if query is empty
+            if (query === '') {
+                alert('Please enter a query before submitting.');
+                return; // Stop form submission
+            }
+    
+            const formData = new FormData(this);
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('result-chat').innerText = result.reply;
+                } else {
+                    document.getElementById('result-chat').innerText = 'Error: ' + response.statusText;
+                }
+            } catch (error) {
+                document.getElementById('result-chat').innerText = 'Error: ' + error.message;
+            }
+        };
     </script>
 </body>
 </html>
