@@ -21,6 +21,11 @@ generation_config = {
     "response_mime_type": "text/plain",
 }
 
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    generation_config=generation_config,
+)
+chat_session = model.start_chat(history=[])
 
 saved_file_path='uploads'
 
@@ -29,7 +34,23 @@ saved_file_path='uploads'
 if not os.path.exists(saved_file_path):
     os.makedirs(saved_file_path,exist_ok=True)
     
+
+def gemini_api(query):
+    response = chat_session.send_message(f"{query}")
+
+    text_parts = []
+    candidates = response.candidates
     
+    for candidate in candidates:
+        content = candidate.content
+        
+        for part in content.parts:
+            text = part.text
+            cleaned_text = text.replace('\n', ' ').replace('[', '').replace(']', '').replace('**', '').strip('"')
+            text_parts.append(cleaned_text)
+    
+    # Join all text parts into a single string
+    return ' '.join(text_parts)
     
 def process_image(file_path):
     img=Image.open(file_path)
@@ -60,6 +81,7 @@ def process():
         file_path=os.path.join(saved_file_path,secure_filename(file.filename))
         file.save(file_path)
         mime_type,_=mimetypes.guess_type(file_path)
+        
         if mime_type in ['image/png', 'image/jpeg']:
             message=process_image(file_path)
 
@@ -78,8 +100,9 @@ def chat():
     if request.method=='POST':
         query=request.form['query']
         print(query)
+        text=gemini_api(query)
         
-    return render_template("home.html",message=query)
+    return render_template("home.html",message=text)
         
         
         
