@@ -7,7 +7,7 @@ import mimetypes
 from dotenv import load_dotenv
 import google.generativeai as genai
 
-
+global message
 app=Flask(__name__)
 
 API_KEY =os.getenv("API_KEY")
@@ -104,6 +104,7 @@ def chat():
             print(query)
             text=gemini_api(query)
             print(text)
+            #print(message)
         
             return jsonify({'reply':text})
         
