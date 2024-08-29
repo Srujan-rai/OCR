@@ -75,13 +75,13 @@
 <body>
     <h1 class="welcome-note">Welcome to OCR & Chat</h1>
     <div class="container">
-        <form class="form-group" action="http://127.0.0.1:5000/process" method="POST" enctype="multipart/form-data" id="file-upload-form">
+        <form class="form-group" action="/process" method="POST" enctype="multipart/form-data" id="file-upload-form">
             <input id="file-upload" type="file" name="file" accept=".pdf, .jpg, .png">
             <button class="btn" type="submit">Submit File</button>
         </form>
         <div id="result-file" class="result-container"></div>
 
-        <form class="form-group" action="http://127.0.0.1:5000/chat" method="post" id="chat-form">
+        <form class="form-group" action="/chat" method="post" id="chat-form">
             <input id="chat-input" type="text" name="query" placeholder="Enter your query">
             <button class="btn" type="submit">Submit Query</button>
         </form>
@@ -112,10 +112,9 @@
             const queryInput = document.getElementById('chat-input');
             const query = queryInput.value.trim();
     
-            // Check if query is empty
             if (query === '') {
                 alert('Please enter a query before submitting.');
-                return; // Stop form submission
+                return; 
             }
     
             const formData = new FormData(this);

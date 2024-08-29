@@ -6,6 +6,12 @@ import pytesseract
 import mimetypes
 from dotenv import load_dotenv
 import google.generativeai as genai
+import easyocr
+from pdf2image import convert_from_path
+import easyocr
+import io
+import tempfile
+
 
 global message
 app=Flask(__name__)
@@ -35,6 +41,10 @@ if not os.path.exists(saved_file_path):
     os.makedirs(saved_file_path,exist_ok=True)
     
 
+
+
+
+
 def gemini_api(query):
     response = chat_session.send_message(f"{query}")
 
@@ -49,16 +59,24 @@ def gemini_api(query):
             cleaned_text = text.replace('\n', ' ').replace('[', '').replace(']', '').replace('**', '').strip('"')
             text_parts.append(cleaned_text)
     
-    # Join all text parts into a single string
     return ' '.join(text_parts)
     
 def process_image(file_path):
-    img=Image.open(file_path)
+    text=[]
+    reader=easyocr.Reader(['en'])
+    results=reader.readtext(file_path)
     
-    
-    text=pytesseract.image_to_string(img,lang='eng')
-    print(text)
-    return text
+
+    for result in results:
+        print(result[1])
+        text.append(result[1]) 
+        
+    extracted_text= ' ,'.join(text)
+    print(extracted_text)      
+
+    reponse=gemini_api(f'this text is taken from an image and i will be asking some questions on thsi text . the text is:{extracted_text}')
+    print(reponse)
+    return extracted_text
     
 
 @app.route('/')
@@ -87,8 +105,24 @@ def process():
 
         
         elif mime_type == 'application/pdf':
-            message="uploaded is pdf"
+            images = convert_from_path(file_path)
+            reader = easyocr.Reader(['en'])
 
+            text = []
+            for i, image in enumerate(images):
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp_file:
+                    temp_file_path = temp_file.name
+                    image.save(temp_file_path, format='PNG')
+
+                    result = reader.readtext(temp_file_path)
+                    text.extend([res[1] for res in result])
+                    print(f"Page {i + 1}: {text}")
+                    reponse=gemini_api(f'this text is taken from an image and i will be asking some questions on thsi text . the text is:{text}')
+                    print(reponse)
+
+                    os.remove(temp_file_path)   
+
+            message = " ".join(text)
         
         
         os.remove(file_path)
@@ -104,7 +138,7 @@ def chat():
             print(query)
             text=gemini_api(query)
             print(text)
-            #print(message)
+   
         
             return jsonify({'reply':text})
         
@@ -118,4 +152,4 @@ def chat():
 
 
 if __name__=="__main__":
-    app.run(debug=True,host='0.0.0.0')
+    app.run(debug=True,host='0.0.0.0',load_dotenv=True,port=5000)
