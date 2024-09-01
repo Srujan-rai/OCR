@@ -12,6 +12,7 @@ import easyocr
 import io
 import tempfile
 
+load_dotenv()
 
 global message
 app=Flask(__name__)
